@@ -1,0 +1,77 @@
+package ru.igornikitin.NauJava.service;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import ru.igornikitin.NauJava.entity.Project;
+import ru.igornikitin.NauJava.repository.ProjectRepository;
+
+@Service
+public class ProjectServiceImpl implements ProjectService {
+
+	private final ProjectRepository projectRepository;
+
+	public ProjectServiceImpl(ProjectRepository projectRepository) {
+		this.projectRepository = projectRepository;
+	}
+
+	@Override
+	public void createProject(Long id, String name, String description, LocalDate deadline) {
+		if (projectRepository.read(id) != null) {
+			throw new IllegalArgumentException("Проект с id " + id + " уже существует");
+		}
+		Project project = new Project();
+		project.setId(id);
+		project.setName(name);
+		project.setDescription(description);
+		project.setDeadline(deadline);
+		projectRepository.create(project);
+	}
+
+	@Override
+	public Project findById(Long id) {
+		Project project = projectRepository.read(id);
+		if (project == null) {
+			throw new IllegalArgumentException("Проект с id " + id + " не найден");
+		}
+		return project;
+	}
+
+	@Override
+	public List<Project> findAll() {
+		return projectRepository.readAll();
+	}
+
+	@Override
+	public void deleteById(Long id) {
+		findById(id);
+		projectRepository.delete(id);
+	}
+
+	@Override
+	public void updateProject(Long id, String name, String description, LocalDate deadline) {
+		Project project = findById(id);
+		if (name != null) {
+			project.setName(name);
+		}
+		if (description != null) {
+			project.setDescription(description);
+		}
+		if (deadline != null) {
+			project.setDeadline(deadline);
+		}
+		projectRepository.update(project);
+	}
+
+	@Override
+	public void addMember(Long projectId, String member) {
+		Project project = findById(projectId);
+		if (!project.getMembers().add(member)) {
+			throw new IllegalArgumentException("Участник " + member + " уже есть в проекте " + projectId);
+		}
+		projectRepository.update(project);
+	}
+
+}
