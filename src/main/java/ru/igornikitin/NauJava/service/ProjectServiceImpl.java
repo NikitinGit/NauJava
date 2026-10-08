@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.annotation.PostConstruct;
+import ru.igornikitin.NauJava.config.AppConfig;
 import ru.igornikitin.NauJava.entity.Project;
 import ru.igornikitin.NauJava.repository.ProjectRepository;
 
@@ -13,8 +15,16 @@ public class ProjectServiceImpl implements ProjectService {
 
 	private final ProjectRepository projectRepository;
 
-	public ProjectServiceImpl(ProjectRepository projectRepository) {
+	private final AppConfig appConfig;
+
+	public ProjectServiceImpl(ProjectRepository projectRepository, AppConfig appConfig) {
 		this.projectRepository = projectRepository;
+		this.appConfig = appConfig;
+	}
+
+	@PostConstruct
+	public void printAppInfo() {
+		System.out.println(appConfig.getAppName() + " v" + appConfig.getAppVersion());
 	}
 
 	@Override
