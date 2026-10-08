@@ -3,7 +3,7 @@ package ru.igornikitin.NauJava;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+@SpringBootTest(properties = "app.console.enabled=false")
 class NauJavaApplicationTests {
 
 	@Test
