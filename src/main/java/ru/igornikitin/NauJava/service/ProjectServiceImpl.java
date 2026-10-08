@@ -29,6 +29,10 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	public Project createProject(String name, String description, LocalDate deadline) {
+		requireNotBlank(name, "название проекта");
+		if (deadline == null) {
+			throw new IllegalArgumentException("срок проекта обязателен");
+		}
 		Project project = new Project();
 		project.setName(name);
 		project.setDescription(description);
@@ -61,6 +65,7 @@ public class ProjectServiceImpl implements ProjectService {
 	public void updateProject(Long id, String name, String description, LocalDate deadline) {
 		Project project = findById(id);
 		if (name != null) {
+			requireNotBlank(name, "название проекта");
 			project.setName(name);
 		}
 		if (description != null) {
@@ -74,11 +79,18 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	public void addMember(Long projectId, String member) {
+		requireNotBlank(member, "имя участника");
 		Project project = findById(projectId);
 		if (!project.getMembers().add(member)) {
 			throw new IllegalArgumentException("Участник " + member + " уже есть в проекте " + projectId);
 		}
 		projectRepository.update(project);
+	}
+
+	private static void requireNotBlank(String value, String fieldName) {
+		if (value == null || value.isBlank()) {
+			throw new IllegalArgumentException(fieldName + " не может быть пустым");
+		}
 	}
 
 }

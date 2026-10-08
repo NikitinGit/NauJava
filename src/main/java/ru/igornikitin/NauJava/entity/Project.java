@@ -6,14 +6,19 @@ import java.util.Set;
 
 public class Project {
 
+	/** not null — присваивается репозиторием при создании */
 	private Long id;
 
+	/** not null */
 	private String name;
 
+	/** nullable — описание необязательно */
 	private String description;
 
+	/** not null */
 	private LocalDate deadline;
 
+	/** not null — пустой набор, если участников нет */
 	private Set<String> members = new LinkedHashSet<>();
 
 	public Long getId() {
@@ -60,7 +65,7 @@ public class Project {
 	public String toString() {
 		return "Project{id=" + id
 				+ ", name='" + name + '\''
-				+ ", description='" + description + '\''
+				+ ", description=" + (description == null ? "—" : "'" + description + "'")
 				+ ", deadline=" + deadline
 				+ ", members=" + members + '}';
 	}
