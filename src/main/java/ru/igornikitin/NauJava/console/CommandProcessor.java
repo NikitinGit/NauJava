@@ -15,12 +15,12 @@ import ru.igornikitin.NauJava.service.ProjectService;
 @Component
 public class CommandProcessor {
 
-	/** Слово без пробелов или текст в двойных кавычках: create 1 "Мой сайт" ... */
+	/** Слово без пробелов или текст в двойных кавычках: create "Мой сайт" ... */
 	private static final Pattern TOKEN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
 
 	private static final String HELP = """
 			Команды:
-			  create <id> <название> <срок ГГГГ-ММ-ДД> <описание>  создать проект
+			  create <название> <срок ГГГГ-ММ-ДД> <описание>       создать проект
 			  get <id>                                            показать проект
 			  list                                                показать все проекты
 			  update <id> name|description|deadline <значение>    изменить поле проекта
@@ -28,7 +28,7 @@ public class CommandProcessor {
 			  delete <id>                                         удалить проект
 			  help                                                эта справка
 			  exit                                                выход
-			Текст с пробелами берите в кавычки: create 1 "Мой сайт" 2026-12-31 "Сайт компании\"""";
+			Текст с пробелами берите в кавычки: create "Мой сайт" 2026-12-31 "Сайт компании\"""";
 
 	private final ProjectService projectService;
 
@@ -44,9 +44,9 @@ public class CommandProcessor {
 		try {
 			switch (cmd.get(0)) {
 				case "create" -> {
-					requireArgs(cmd, 5);
-					projectService.createProject(parseId(cmd.get(1)), cmd.get(2), cmd.get(4), LocalDate.parse(cmd.get(3)));
-					System.out.println("Проект успешно создан");
+					requireArgs(cmd, 4);
+					Project project = projectService.createProject(cmd.get(1), cmd.get(3), LocalDate.parse(cmd.get(2)));
+					System.out.println("Проект успешно создан, id=" + project.getId());
 				}
 				case "get" -> {
 					requireArgs(cmd, 2);

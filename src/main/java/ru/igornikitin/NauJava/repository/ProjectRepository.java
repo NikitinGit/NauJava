@@ -2,6 +2,7 @@ package ru.igornikitin.NauJava.repository;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.stereotype.Component;
 
@@ -12,12 +13,16 @@ public class ProjectRepository implements CrudRepository<Project, Long> {
 
 	private final List<Project> projectContainer;
 
+	/** Имитация автоинкремента БД: номера удалённых проектов повторно не выдаются. */
+	private final AtomicLong idSequence = new AtomicLong();
+
 	public ProjectRepository(List<Project> projectContainer) {
 		this.projectContainer = projectContainer;
 	}
 
 	@Override
 	public void create(Project project) {
+		project.setId(idSequence.incrementAndGet());
 		projectContainer.add(project);
 	}
 

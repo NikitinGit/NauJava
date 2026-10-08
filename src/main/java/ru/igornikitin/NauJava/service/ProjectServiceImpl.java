@@ -28,16 +28,13 @@ public class ProjectServiceImpl implements ProjectService {
 	}
 
 	@Override
-	public void createProject(Long id, String name, String description, LocalDate deadline) {
-		if (projectRepository.read(id) != null) {
-			throw new IllegalArgumentException("Проект с id " + id + " уже существует");
-		}
+	public Project createProject(String name, String description, LocalDate deadline) {
 		Project project = new Project();
-		project.setId(id);
 		project.setName(name);
 		project.setDescription(description);
 		project.setDeadline(deadline);
 		projectRepository.create(project);
+		return project;
 	}
 
 	@Override

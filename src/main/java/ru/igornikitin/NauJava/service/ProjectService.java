@@ -7,7 +7,7 @@ import ru.igornikitin.NauJava.entity.Project;
 
 public interface ProjectService {
 
-	void createProject(Long id, String name, String description, LocalDate deadline);
+	Project createProject(String name, String description, LocalDate deadline);
 
 	Project findById(Long id);
 
