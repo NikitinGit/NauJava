@@ -79,12 +79,8 @@ public class ProjectServiceImpl implements ProjectService {
 
 	@Override
 	public void addMember(Long projectId, String member) {
-		requireNotBlank(member, "имя участника");
-		Project project = findById(projectId);
-		if (!project.getMembers().add(member)) {
-			throw new IllegalArgumentException("Участник " + member + " уже есть в проекте " + projectId);
-		}
-		projectRepository.update(project);
+		// TODO временная заглушка: участники стали сущностью ProjectMember, метод переписывается на шаге 7
+		throw new UnsupportedOperationException("добавление участников временно недоступно");
 	}
 
 	private static void requireNotBlank(String value, String fieldName) {
