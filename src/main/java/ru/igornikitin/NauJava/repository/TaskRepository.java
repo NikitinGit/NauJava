@@ -12,7 +12,7 @@ import ru.igornikitin.NauJava.entity.TaskStatus;
 public interface TaskRepository extends CrudRepository<Task, Long> {
 
 	/**
-	 * Находит задачи в заданном статусе со сроком в интервале (from, to) включительно.
+	 * Находит задачи в заданном статусе со сроком в интервале [from, to] включительно.
 	 * Запрос генерируется Spring Data по имени метода (ключевые слова And, Between).
 	 * @param status статус задачи
 	 * @param from начало интервала срока
