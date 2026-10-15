@@ -1,0 +1,70 @@
+// ER-диаграмма NauJava: система управления проектами.
+// Открыть: https://dbdiagram.io/d → вставить этот текст в левую панель.
+
+Enum member_role {
+  OWNER
+  MEMBER
+  VIEWER
+}
+
+Enum task_status {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+Enum task_priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+Table users {
+  id bigint [pk, increment]
+  login varchar(50) [not null, unique]
+  full_name varchar(255) [not null]
+  email varchar(255) [not null, unique]
+  created_at timestamp [not null]
+}
+
+Table projects {
+  id bigint [pk, increment]
+  name varchar(255) [not null]
+  description text
+  deadline date [not null]
+  created_at timestamp [not null]
+  owner_id bigint [not null, ref: > users.id]
+}
+
+Table project_members {
+  id bigint [pk, increment]
+  role member_role [not null]
+  position varchar(100)
+  joined_at timestamp [not null]
+  project_id bigint [not null, ref: > projects.id]
+  user_id bigint [not null, ref: > users.id]
+
+  indexes {
+    (project_id, user_id) [unique, note: 'пользователь входит в проект один раз']
+  }
+}
+
+Table tasks {
+  id bigint [pk, increment]
+  title varchar(255) [not null]
+  description text
+  status task_status [not null]
+  priority task_priority [not null]
+  due_date date
+  project_id bigint [not null, ref: > projects.id, note: 'задача не существует без проекта']
+  assignee_id bigint [ref: > users.id, note: 'исполнитель может быть не назначен']
+}
+
+Table comments {
+  id bigint [pk, increment]
+  text text [not null]
+  created_at timestamp [not null]
+  edited_at timestamp
+  task_id bigint [not null, ref: > tasks.id]
+  author_id bigint [not null, ref: > users.id]
+}
