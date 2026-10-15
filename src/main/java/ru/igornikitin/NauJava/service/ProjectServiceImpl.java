@@ -1,6 +1,7 @@
 package ru.igornikitin.NauJava.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -37,28 +38,27 @@ public class ProjectServiceImpl implements ProjectService {
 		project.setName(name);
 		project.setDescription(description);
 		project.setDeadline(deadline);
-		projectRepository.create(project);
-		return project;
+		return projectRepository.save(project);
 	}
 
 	@Override
 	public Project findById(Long id) {
-		Project project = projectRepository.read(id);
-		if (project == null) {
-			throw new IllegalArgumentException("Проект с id " + id + " не найден");
-		}
-		return project;
+		return projectRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Проект с id " + id + " не найден"));
 	}
 
 	@Override
 	public List<Project> findAll() {
-		return projectRepository.readAll();
+		// CrudRepository.findAll() возвращает Iterable, а не List
+		List<Project> projects = new ArrayList<>();
+		projectRepository.findAll().forEach(projects::add);
+		return projects;
 	}
 
 	@Override
 	public void deleteById(Long id) {
 		findById(id);
-		projectRepository.delete(id);
+		projectRepository.deleteById(id);
 	}
 
 	@Override
@@ -74,7 +74,7 @@ public class ProjectServiceImpl implements ProjectService {
 		if (deadline != null) {
 			project.setDeadline(deadline);
 		}
-		projectRepository.update(project);
+		projectRepository.save(project);
 	}
 
 	@Override
