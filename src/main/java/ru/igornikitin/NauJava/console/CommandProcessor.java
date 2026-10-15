@@ -12,7 +12,9 @@ import java.util.regex.Pattern;
 import org.springframework.stereotype.Component;
 
 import ru.igornikitin.NauJava.entity.Project;
+import ru.igornikitin.NauJava.entity.User;
 import ru.igornikitin.NauJava.service.ProjectService;
+import ru.igornikitin.NauJava.service.UserService;
 
 @Component
 public class CommandProcessor {
@@ -26,29 +28,36 @@ public class CommandProcessor {
 			.map(pattern -> DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.STRICT))
 			.toList();
 
-	private static final String CREATE_USAGE = "create <название> <срок> [описание]";
+	private static final String ADD_USER_USAGE = "add-user <логин> <ФИО> <email>";
+	private static final String CREATE_USAGE = "create <логин владельца> <название> <срок> [описание]";
 	private static final String GET_USAGE = "get <id>";
 	private static final String UPDATE_USAGE = "update <id> name|description|deadline <значение>";
-	private static final String ADD_MEMBER_USAGE = "add-member <id> <участник>";
+	private static final String ADD_MEMBER_USAGE = "add-member <id> <логин>";
 	private static final String DELETE_USAGE = "delete <id>";
 
 	private static final String HELP = """
 			Команды:
-			  create <название> <срок> [описание]                 создать проект ([...] — необязательно)
+			  add-user <логин> <ФИО> <email>                      создать пользователя
+			  users                                               показать всех пользователей
+			  create <логин владельца> <название> <срок> [описание]
+			                                                      создать проект ([...] — необязательно)
 			  get <id>                                            показать проект
 			  list                                                показать все проекты
 			  update <id> name|description|deadline <значение>    изменить поле проекта
-			  add-member <id> <участник>                          добавить участника
-			  delete <id>                                         удалить проект
+			  add-member <id> <логин>                             добавить пользователя в проект
+			  delete <id>                                         удалить проект с задачами
 			  help                                                эта справка
 			  exit                                                выход
 			Срок: 2026-12-31, 2026.12.31, 31.12.2026, 31-12-2026 или 31/12/2026
-			Текст с пробелами берите в кавычки: create "Мой сайт" 31.12.2026 "Сайт компании\"""";
+			Текст с пробелами берите в кавычки: create ivan "Мой сайт" 31.12.2026 "Сайт компании\"""";
 
 	private final ProjectService projectService;
 
-	public CommandProcessor(ProjectService projectService) {
+	private final UserService userService;
+
+	public CommandProcessor(ProjectService projectService, UserService userService) {
 		this.projectService = projectService;
+		this.userService = userService;
 	}
 
 	public void processCommand(String input) {
@@ -58,10 +67,22 @@ public class CommandProcessor {
 		}
 		try {
 			switch (cmd.get(0)) {
+				case "add-user" -> {
+					checkArgs(cmd, 4, 4, ADD_USER_USAGE);
+					User user = userService.createUser(cmd.get(1), cmd.get(2), cmd.get(3));
+					System.out.println("Пользователь успешно создан, id=" + user.getId());
+				}
+				case "users" -> {
+					List<User> users = userService.findAll();
+					if (users.isEmpty()) {
+						System.out.println("Пользователей нет");
+					}
+					users.forEach(System.out::println);
+				}
 				case "create" -> {
-					checkArgs(cmd, 3, 4, CREATE_USAGE);
-					String description = cmd.size() > 3 ? cmd.get(3) : null;
-					Project project = projectService.createProject(cmd.get(1), description, parseDate(cmd.get(2)));
+					checkArgs(cmd, 4, 5, CREATE_USAGE);
+					String description = cmd.size() > 4 ? cmd.get(4) : null;
+					Project project = projectService.createProject(cmd.get(1), cmd.get(2), description, parseDate(cmd.get(3)));
 					System.out.println("Проект успешно создан, id=" + project.getId());
 				}
 				case "get" -> {

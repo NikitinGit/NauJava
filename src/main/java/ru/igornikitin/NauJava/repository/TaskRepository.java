@@ -27,4 +27,6 @@ public interface TaskRepository extends CrudRepository<Task, Long> {
 	@Query("SELECT t FROM Task t WHERE t.assignee.login = :login")
 	List<Task> findByAssigneeLogin(String login);
 
+	void deleteByProjectId(Long projectId);
+
 }
