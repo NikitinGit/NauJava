@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Список проектов</title>
+</head>
+<body>
+<h1>Список проектов</h1>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Название</th>
+        <th>Описание</th>
+        <th>Владелец</th>
+        <th>Срок</th>
+        <th>Создан</th>
+    </tr>
+    <tr th:each="project : ${projects}">
+        <td th:text="${project.id}"></td>
+        <td th:text="${project.name}"></td>
+        <td th:text="${project.description}"></td>
+        <td th:text="${project.owner.fullName + ' (' + project.owner.login + ')'}"></td>
+        <td th:text="${#temporals.format(project.deadline, 'dd.MM.yyyy')}"></td>
+        <td th:text="${#temporals.format(project.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+    </tr>
+</table>
+</body>
+</html>
