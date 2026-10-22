@@ -15,6 +15,9 @@ import ru.igornikitin.NauJava.repository.TaskRepository;
 
 /**
  * REST-контроллер для кастомных запросов TaskRepository из практики 4.
+ * Пути сделаны по примеру из методички (/findByName) — это RPC-стиль: действие записано в URL.
+ * В RESTful-стиле были бы фильтры коллекции: GET /custom/tasks?status=…&from=…&to=… и GET /custom/tasks?assignee=…
+ * Вопрос о переходе на RESTful-стиль задан куратору.
  */
 @RestController
 @RequestMapping("/custom/tasks")
