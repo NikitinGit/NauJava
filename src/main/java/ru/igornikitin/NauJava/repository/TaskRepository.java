@@ -5,10 +5,13 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.data.rest.core.annotation.RestResource;
 
 import ru.igornikitin.NauJava.entity.Task;
 import ru.igornikitin.NauJava.entity.TaskStatus;
 
+@RepositoryRestResource(path = "tasks")
 public interface TaskRepository extends CrudRepository<Task, Long> {
 
 	/**
@@ -27,6 +30,8 @@ public interface TaskRepository extends CrudRepository<Task, Long> {
 	@Query("SELECT t FROM Task t WHERE t.assignee.login = :login")
 	List<Task> findByAssigneeLogin(String login);
 
+	// служебный метод для каскадного удаления проекта; через REST не выставляется, иначе он стал бы GET /search/...
+	@RestResource(exported = false)
 	void deleteByProjectId(Long projectId);
 
 }
