@@ -153,6 +153,7 @@ class TaskRepositoryTest {
 		user.setLogin(unique.substring(0, 20));
 		user.setFullName("Тестовый пользователь");
 		user.setEmail(unique + "@test.ru");
+		user.setPassword("test");
 		createdUsers.add(userRepository.save(user));
 		return user;
 	}

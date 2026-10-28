@@ -56,6 +56,7 @@ class ProjectTransactionServiceTest {
 		owner.setLogin(unique.substring(0, 20));
 		owner.setFullName("Владелец проекта");
 		owner.setEmail(unique + "@test.ru");
+		owner.setPassword("test");
 		userRepository.save(owner);
 	}
 
