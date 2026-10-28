@@ -28,7 +28,7 @@ public class CommandProcessor {
 			.map(pattern -> DateTimeFormatter.ofPattern(pattern).withResolverStyle(ResolverStyle.STRICT))
 			.toList();
 
-	private static final String ADD_USER_USAGE = "add-user <логин> <ФИО> <email>";
+	private static final String ADD_USER_USAGE = "add-user <логин> <ФИО> <email> <пароль>";
 	private static final String CREATE_USAGE = "create <логин владельца> <название> <срок> [описание]";
 	private static final String GET_USAGE = "get <id>";
 	private static final String UPDATE_USAGE = "update <id> name|description|deadline <значение>";
@@ -37,7 +37,7 @@ public class CommandProcessor {
 
 	private static final String HELP = """
 			Команды:
-			  add-user <логин> <ФИО> <email>                      создать пользователя
+			  add-user <логин> <ФИО> <email> <пароль>             создать пользователя
 			  users                                               показать всех пользователей
 			  create <логин владельца> <название> <срок> [описание]
 			                                                      создать проект ([...] — необязательно)
@@ -68,8 +68,8 @@ public class CommandProcessor {
 		try {
 			switch (cmd.get(0)) {
 				case "add-user" -> {
-					checkArgs(cmd, 4, 4, ADD_USER_USAGE);
-					User user = userService.createUser(cmd.get(1), cmd.get(2), cmd.get(3));
+					checkArgs(cmd, 5, 5, ADD_USER_USAGE);
+					User user = userService.createUser(cmd.get(1), cmd.get(2), cmd.get(3), cmd.get(4));
 					System.out.println("Пользователь успешно создан, id=" + user.getId());
 				}
 				case "users" -> {

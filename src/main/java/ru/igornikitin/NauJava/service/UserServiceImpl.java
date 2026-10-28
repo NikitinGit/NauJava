@@ -18,10 +18,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public User createUser(String login, String fullName, String email) {
+	public User createUser(String login, String fullName, String email, String password) {
 		requireNotBlank(login, "логин");
 		requireNotBlank(fullName, "ФИО");
 		requireNotBlank(email, "email");
+		requireNotBlank(password, "пароль");
 		// проверяем заранее, чтобы вместо ошибки уникального индекса БД выдать понятное сообщение
 		if (userRepository.existsByLogin(login)) {
 			throw new IllegalArgumentException("пользователь с логином " + login + " уже существует");
@@ -33,6 +34,7 @@ public class UserServiceImpl implements UserService {
 		user.setLogin(login);
 		user.setFullName(fullName);
 		user.setEmail(email);
+		user.setPassword(password);
 		return userRepository.save(user);
 	}
 
