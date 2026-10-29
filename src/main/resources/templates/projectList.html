@@ -5,6 +5,12 @@
     <title>Список проектов</title>
 </head>
 <body>
+<div>
+    Вы вошли как <b th:text="${username}"></b>
+    <form th:action="@{/logout}" method="post" style="display: inline">
+        <input type="submit" value="Выйти"/>
+    </form>
+</div>
 <h1>Список проектов</h1>
 <table border="1">
     <tr>
