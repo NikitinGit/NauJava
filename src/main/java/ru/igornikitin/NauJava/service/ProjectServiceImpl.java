@@ -33,15 +33,18 @@ public class ProjectServiceImpl implements ProjectService {
 
 	private final AppConfig appConfig;
 
+	private final MessageService messageService;
+
 	public ProjectServiceImpl(ProjectRepository projectRepository, ProjectMemberRepository projectMemberRepository,
 			TaskRepository taskRepository, CommentRepository commentRepository, UserService userService,
-			AppConfig appConfig) {
+			AppConfig appConfig, MessageService messageService) {
 		this.projectRepository = projectRepository;
 		this.projectMemberRepository = projectMemberRepository;
 		this.taskRepository = taskRepository;
 		this.commentRepository = commentRepository;
 		this.userService = userService;
 		this.appConfig = appConfig;
+		this.messageService = messageService;
 	}
 
 	@PostConstruct
@@ -52,9 +55,9 @@ public class ProjectServiceImpl implements ProjectService {
 	@Override
 	@Transactional
 	public Project createProject(String ownerLogin, String name, String description, LocalDate deadline) {
-		requireNotBlank(name, "название проекта");
+		requireNotBlank(name, "project.name.blank");
 		if (deadline == null) {
-			throw new IllegalArgumentException("срок проекта обязателен");
+			throw new IllegalArgumentException(messageService.get("project.deadline.required"));
 		}
 		User owner = userService.findByLogin(ownerLogin);
 		Project project = new Project();
@@ -70,7 +73,7 @@ public class ProjectServiceImpl implements ProjectService {
 	@Override
 	public Project findById(Long id) {
 		return projectRepository.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Проект с id " + id + " не найден"));
+				.orElseThrow(() -> new IllegalArgumentException(messageService.get("project.not-found", id)));
 	}
 
 	@Override
@@ -96,7 +99,7 @@ public class ProjectServiceImpl implements ProjectService {
 	public void updateProject(Long id, String name, String description, LocalDate deadline) {
 		Project project = findById(id);
 		if (name != null) {
-			requireNotBlank(name, "название проекта");
+			requireNotBlank(name, "project.name.blank");
 			project.setName(name);
 		}
 		if (description != null) {
@@ -113,7 +116,7 @@ public class ProjectServiceImpl implements ProjectService {
 		Project project = findById(projectId);
 		User user = userService.findByLogin(userLogin);
 		if (projectMemberRepository.existsByProjectIdAndUserId(projectId, user.getId())) {
-			throw new IllegalArgumentException("Участник " + userLogin + " уже есть в проекте " + projectId);
+			throw new IllegalArgumentException(messageService.get("project.member.exists", userLogin, projectId));
 		}
 		addMember(project, user, MemberRole.MEMBER);
 	}
@@ -126,9 +129,9 @@ public class ProjectServiceImpl implements ProjectService {
 		projectMemberRepository.save(member);
 	}
 
-	private static void requireNotBlank(String value, String fieldName) {
+	private void requireNotBlank(String value, String messageCode) {
 		if (value == null || value.isBlank()) {
-			throw new IllegalArgumentException(fieldName + " не может быть пустым");
+			throw new IllegalArgumentException(messageService.get(messageCode));
 		}
 	}
 

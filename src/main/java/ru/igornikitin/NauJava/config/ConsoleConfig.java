@@ -17,7 +17,7 @@ public class ConsoleConfig {
 	// В тестах консоль отключается (app.console.enabled=false): иначе цикл ждёт ввода и сборка зависает.
 	// @Disabled на тесте тоже решил бы проблему, но тогда тест не проверял бы, что контекст Spring поднимается.
 	@Bean
-	@ConditionalOnBooleanProperty(name = "app.console.enabled", matchIfMissing = true)
+	@ConditionalOnBooleanProperty(name = "app.console.enabled", matchIfMissing = false)
 	public CommandLineRunner commandScanner(CommandProcessor commandProcessor, ApplicationContext context) {
 		return args -> {
 			try (Scanner scanner = new Scanner(System.in)) {

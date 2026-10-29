@@ -13,22 +13,25 @@ public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
 
-	public UserServiceImpl(UserRepository userRepository) {
+	private final MessageService messageService;
+
+	public UserServiceImpl(UserRepository userRepository, MessageService messageService) {
 		this.userRepository = userRepository;
+		this.messageService = messageService;
 	}
 
 	@Override
 	public User createUser(String login, String fullName, String email, String password) {
-		requireNotBlank(login, "логин");
-		requireNotBlank(fullName, "ФИО");
-		requireNotBlank(email, "email");
-		requireNotBlank(password, "пароль");
+		requireNotBlank(login, "user.login.blank");
+		requireNotBlank(fullName, "user.full-name.blank");
+		requireNotBlank(email, "user.email.blank");
+		requireNotBlank(password, "user.password.blank");
 		// проверяем заранее, чтобы вместо ошибки уникального индекса БД выдать понятное сообщение
 		if (userRepository.existsByLogin(login)) {
-			throw new IllegalArgumentException("пользователь с логином " + login + " уже существует");
+			throw new IllegalArgumentException(messageService.get("user.login.exists", login));
 		}
 		if (userRepository.existsByEmail(email)) {
-			throw new IllegalArgumentException("пользователь с email " + email + " уже существует");
+			throw new IllegalArgumentException(messageService.get("user.email.exists", email));
 		}
 		User user = new User();
 		user.setLogin(login);
@@ -41,7 +44,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User findByLogin(String login) {
 		return userRepository.findByLogin(login)
-				.orElseThrow(() -> new IllegalArgumentException("пользователь с логином " + login + " не найден"));
+				.orElseThrow(() -> new IllegalArgumentException(messageService.get("user.not-found", login)));
 	}
 
 	@Override
@@ -51,9 +54,9 @@ public class UserServiceImpl implements UserService {
 		return users;
 	}
 
-	private static void requireNotBlank(String value, String fieldName) {
+	private void requireNotBlank(String value, String messageCode) {
 		if (value == null || value.isBlank()) {
-			throw new IllegalArgumentException(fieldName + " не может быть пустым");
+			throw new IllegalArgumentException(messageService.get(messageCode));
 		}
 	}
 
