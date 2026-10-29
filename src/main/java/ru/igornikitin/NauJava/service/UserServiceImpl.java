@@ -3,9 +3,11 @@ package ru.igornikitin.NauJava.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import ru.igornikitin.NauJava.entity.User;
+import ru.igornikitin.NauJava.entity.UserRole;
 import ru.igornikitin.NauJava.repository.UserRepository;
 
 @Service
@@ -15,13 +17,17 @@ public class UserServiceImpl implements UserService {
 
 	private final MessageService messageService;
 
-	public UserServiceImpl(UserRepository userRepository, MessageService messageService) {
+	private final PasswordEncoder passwordEncoder;
+
+	public UserServiceImpl(UserRepository userRepository, MessageService messageService,
+			PasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
 		this.messageService = messageService;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Override
-	public User createUser(String login, String fullName, String email, String password) {
+	public User createUser(String login, String fullName, String email, String password, UserRole role) {
 		requireNotBlank(login, "user.login.blank");
 		requireNotBlank(fullName, "user.full-name.blank");
 		requireNotBlank(email, "user.email.blank");
@@ -37,7 +43,8 @@ public class UserServiceImpl implements UserService {
 		user.setLogin(login);
 		user.setFullName(fullName);
 		user.setEmail(email);
-		user.setPassword(password);
+		user.setPassword(passwordEncoder.encode(password));
+		user.setRole(role);
 		return userRepository.save(user);
 	}
 
