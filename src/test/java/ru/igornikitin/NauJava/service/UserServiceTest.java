@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import ru.igornikitin.NauJava.entity.User;
 import ru.igornikitin.NauJava.entity.UserRole;
@@ -22,18 +23,21 @@ class UserServiceTest {
 
 	private final UserRepository userRepository;
 
-	private User created;
+	private final PasswordEncoder passwordEncoder;
+
+	private User testUser;
 
 	@Autowired
-	UserServiceTest(UserService userService, UserRepository userRepository) {
+	UserServiceTest(UserService userService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
 		this.userService = userService;
 		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@AfterEach
 	void cleanUp() {
-		if (created != null) {
-			userRepository.delete(created);
+		if (testUser != null) {
+			userRepository.delete(testUser);
 		}
 	}
 
@@ -44,11 +48,26 @@ class UserServiceTest {
 	void testCreateAndFindByLogin() {
 		String login = UUID.randomUUID().toString().substring(0, 20);
 
-		created = userService.createUser(login, "Тестовый пользователь", login + "@test.ru", "secret");
+		testUser = userService.createUser(login, "Тестовый пользователь", login + "@test.ru", "secret");
 		User found = userService.findByLogin(login);
 
-		Assertions.assertEquals(created.getId(), found.getId());
+		Assertions.assertEquals(testUser.getId(), found.getId());
 		Assertions.assertEquals(UserRole.USER, found.getRole());
+	}
+
+	/**
+	 * В БД сохраняется BCrypt-хеш, а не сам пароль; введённый пароль с хешем совпадает.
+	 */
+	@Test
+	void testPasswordIsEncoded() {
+		String login = UUID.randomUUID().toString().substring(0, 20);
+
+		testUser = userService.createUser(login, "Тестовый пользователь", login + "@test.ru", "secret");
+		String stored = userService.findByLogin(login).getPassword();
+
+		Assertions.assertNotEquals("secret", stored);
+		Assertions.assertTrue(stored.startsWith("$2a$"), stored);
+		Assertions.assertTrue(passwordEncoder.matches("secret", stored));
 	}
 
 	/**
@@ -57,7 +76,7 @@ class UserServiceTest {
 	@Test
 	void testCreateUserWithExistingLogin() {
 		String login = UUID.randomUUID().toString().substring(0, 20);
-		created = userService.createUser(login, "Тестовый пользователь", login + "@test.ru", "secret");
+		testUser = userService.createUser(login, "Тестовый пользователь", login + "@test.ru", "secret");
 
 		Assertions.assertThrows(IllegalArgumentException.class,
 				() -> userService.createUser(login, "Другой пользователь", "other-" + login + "@test.ru", "secret"));
