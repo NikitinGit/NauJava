@@ -15,8 +15,6 @@ import ru.igornikitin.NauJava.repository.UserRepository;
 
 /**
  * Загружает пользователя приложения из БД по логину и преобразует его в UserDetails для Spring Security.
- * Наш User (сущность) и org.springframework.security.core.userdetails.User — разные классы,
- * поэтому второй указан полным именем.
  */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -34,6 +32,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		User appUser = userRepository.findByLogin(username)
 				.orElseThrow(() -> new UsernameNotFoundException(messageService.get("user.not-found", username)));
+
+//		 Наш User (сущность) и org.springframework.security.core.userdetails.User — разные классы,
+//		 поэтому второй указан полным именем.
 		return new org.springframework.security.core.userdetails.User(appUser.getLogin(), appUser.getPassword(),
 				mapRoles(appUser));
 	}
