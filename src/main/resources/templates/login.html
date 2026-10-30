@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход</title>
+</head>
+<body>
+<h1>Вход</h1>
+<div th:if="${param.error}">Неверный логин или пароль</div>
+<div th:if="${param.logout}">Вы вышли из системы</div>
+<div th:if="${param.registered}">Регистрация прошла успешно, войдите</div>
+<!-- th:action сам добавляет в форму скрытое поле с CSRF-токеном -->
+<form th:action="@{/login}" method="post">
+    <div><label>Логин: <input type="text" name="username" autofocus/></label></div>
+    <div><label>Пароль: <input type="password" name="password"/></label></div>
+    <div><input type="submit" value="Войти"/></div>
+</form>
+<p>Нет аккаунта? <a th:href="@{/registration}">Зарегистрироваться</a></p>
+</body>
+</html>
