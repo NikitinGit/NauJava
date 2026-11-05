@@ -34,15 +34,17 @@
     <tr>
         <th>ID</th>
         <th>Название</th>
+        <th>Описание</th>
         <th>Владелец</th>
         <th>Срок</th>
     </tr>
     <tr th:if="${#lists.isEmpty(projects)}">
-        <td colspan="4">Проектов пока нет</td>
+        <td colspan="5">Проектов пока нет</td>
     </tr>
     <tr th:each="project : ${projects}">
         <td th:text="${project.id}"></td>
         <td th:text="${project.name}"></td>
+        <td th:text="${#strings.isEmpty(project.description) ? '—' : project.description}"></td>
         <td th:text="${project.owner.fullName + ' (' + project.owner.login + ')'}"></td>
         <td th:text="${#temporals.format(project.deadline, 'dd.MM.yyyy')}"></td>
     </tr>
