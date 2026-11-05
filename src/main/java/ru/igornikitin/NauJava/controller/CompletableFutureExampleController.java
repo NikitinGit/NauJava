@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ru.igornikitin.NauJava.dto.CombineExampleDto;
+import ru.igornikitin.NauJava.dto.CombineErrorExampleDto;
 import ru.igornikitin.NauJava.dto.ComposeExampleDto;
 import ru.igornikitin.NauJava.service.CompletableFutureExampleService;
 
@@ -26,6 +27,12 @@ public class CompletableFutureExampleController {
 	@GetMapping("/combine")
 	public CompletableFuture<CombineExampleDto> thenCombine() {
 		return exampleService.thenCombineExample();
+	}
+
+	/** GET /examples/completable-futures/combine-error */
+	@GetMapping("/combine-error")
+	public CompletableFuture<CombineErrorExampleDto> thenCombineWithError() {
+		return exampleService.thenCombineWithErrorExample();
 	}
 
 	/** GET /examples/completable-futures/compose/138 */
