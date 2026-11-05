@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Статистический отчёт</title>
+</head>
+<body>
+<h1>Статистический отчёт</h1>
+<table border="1">
+    <tr>
+        <th>Показатель</th>
+        <th>Значение</th>
+    </tr>
+    <tr>
+        <td>Количество зарегистрированных пользователей</td>
+        <td th:text="${userCount}"></td>
+    </tr>
+    <tr>
+        <td>Время подсчёта пользователей</td>
+        <td><span th:text="${usersElapsed}"></span> мс</td>
+    </tr>
+    <tr>
+        <td>Время получения списка проектов</td>
+        <td><span th:text="${projectsElapsed}"></span> мс</td>
+    </tr>
+    <tr>
+        <td>Общее время формирования отчёта</td>
+        <td><span th:text="${totalElapsed}"></span> мс</td>
+    </tr>
+</table>
+
+<h2>Проекты</h2>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Название</th>
+        <th>Владелец</th>
+        <th>Срок</th>
+    </tr>
+    <tr th:if="${#lists.isEmpty(projects)}">
+        <td colspan="4">Проектов пока нет</td>
+    </tr>
+    <tr th:each="project : ${projects}">
+        <td th:text="${project.id}"></td>
+        <td th:text="${project.name}"></td>
+        <td th:text="${project.owner.fullName + ' (' + project.owner.login + ')'}"></td>
+        <td th:text="${#temporals.format(project.deadline, 'dd.MM.yyyy')}"></td>
+    </tr>
+</table>
+</body>
+</html>
