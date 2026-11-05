@@ -19,6 +19,12 @@ Enum task_priority {
   HIGH
 }
 
+Enum report_status {
+  CREATED
+  COMPLETED
+  ERROR
+}
+
 Table users {
   id bigint [pk, increment]
   login varchar(50) [not null, unique]
@@ -67,4 +73,10 @@ Table comments {
   edited_at timestamp
   task_id bigint [not null, ref: > tasks.id]
   author_id bigint [not null, ref: > users.id]
+}
+
+Table reports {
+  id bigint [pk, increment]
+  status report_status [not null]
+  content text
 }
