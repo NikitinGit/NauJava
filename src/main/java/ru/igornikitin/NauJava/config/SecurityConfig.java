@@ -2,8 +2,10 @@ package ru.igornikitin.NauJava.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,7 +32,8 @@ public class SecurityConfig {
 	 * всё остальное (REST API, HTML-страницы) — только после входа; без входа — перенаправление на /login.
 	 */
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) {
+	@ConditionalOnProperty(name = "app.security.enabled", havingValue = "true", matchIfMissing = true)
+	public SecurityFilterChain securedFilterChain(HttpSecurity http) {
 		http.authorizeHttpRequests(authorize -> authorize
 						// /error — чтобы страница ошибки (например, 403) показывалась, а не тоже требовала входа
 						.requestMatchers("/login", "/registration", "/error").permitAll()
@@ -49,6 +52,18 @@ public class SecurityConfig {
 				// CSRF-токен в cookie XSRF-TOKEN: его читает Swagger UI (springdoc.swagger-ui.csrf.enabled)
 				// и отправляет в заголовке, иначе POST/PUT/PATCH/DELETE из Swagger получали бы 403
 				.csrf(CsrfConfigurer::spa);
+		return http.build();
+	}
+
+	/**
+	 * Упрощённая цепочка только для локального профиля: нужна для ручной проверки API из Insomnia.
+	 * Не включается по умолчанию — app.security.enabled=true остаётся безопасной настройкой приложения.
+	 */
+	@Bean
+	@ConditionalOnProperty(name = "app.security.enabled", havingValue = "false")
+	public SecurityFilterChain localFilterChain(HttpSecurity http) {
+		http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
+				.csrf(AbstractHttpConfigurer::disable);
 		return http.build();
 	}
 
