@@ -30,6 +30,10 @@ public interface TaskRepository extends CrudRepository<Task, Long> {
 	@Query("SELECT t FROM Task t WHERE t.assignee.login = :login")
 	List<Task> findByAssigneeLogin(String login);
 
+	/** Используется учебным примером thenCompose: задачи запрашиваются после нахождения проекта. */
+	@RestResource(exported = false)
+	List<Task> findByProjectId(Long projectId);
+
 	// служебный метод для каскадного удаления проекта; через REST не выставляется, иначе он стал бы GET /search/...
 	@RestResource(exported = false)
 	void deleteByProjectId(Long projectId);
