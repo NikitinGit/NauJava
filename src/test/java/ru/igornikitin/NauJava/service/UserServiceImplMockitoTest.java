@@ -56,7 +56,9 @@ class UserServiceImplMockitoTest {
 
 		User created = userService.createUser(LOGIN, FULL_NAME, EMAIL, PASSWORD, UserRole.ADMIN);
 
+		// Перехватывает пользователя, переданного сервисом в репозиторий.
 		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+		// Проверяет единственный вызов save и сохраняет его аргумент в userCaptor.
 		verify(userRepository).save(userCaptor.capture());
 		User saved = userCaptor.getValue();
 		Assertions.assertSame(saved, created);
