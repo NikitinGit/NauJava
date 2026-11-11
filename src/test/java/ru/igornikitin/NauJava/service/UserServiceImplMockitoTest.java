@@ -27,6 +27,13 @@ import ru.igornikitin.NauJava.repository.UserRepository;
 @ExtendWith(MockitoExtension.class)
 class UserServiceImplMockitoTest {
 
+	private static final String LOGIN = "ivanov";
+	private static final String FULL_NAME = "Иванов Иван";
+	private static final String EMAIL = "ivanov@test.ru";
+	private static final String PASSWORD = "secret";
+	private static final String ENCODED_PASSWORD = "bcrypt-hash";
+	private static final String UNKNOWN_LOGIN = "unknown";
+
 	@Mock
 	private UserRepository userRepository;
 
@@ -42,34 +49,34 @@ class UserServiceImplMockitoTest {
 	@Test
 	@DisplayName("Позитивный сценарий: создаёт пользователя с зашифрованным паролем и выбранной ролью")
 	void createsUserWithEncodedPasswordAndSelectedRole() {
-		when(userRepository.existsByLogin("ivanov")).thenReturn(false);
-		when(userRepository.existsByEmail("ivanov@test.ru")).thenReturn(false);
-		when(passwordEncoder.encode("secret")).thenReturn("bcrypt-hash");
+		when(userRepository.existsByLogin(LOGIN)).thenReturn(false);
+		when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
+		when(passwordEncoder.encode(PASSWORD)).thenReturn(ENCODED_PASSWORD);
 		when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-		User created = userService.createUser("ivanov", "Иванов Иван", "ivanov@test.ru", "secret", UserRole.ADMIN);
+		User created = userService.createUser(LOGIN, FULL_NAME, EMAIL, PASSWORD, UserRole.ADMIN);
 
 		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
 		verify(userRepository).save(userCaptor.capture());
 		User saved = userCaptor.getValue();
 		Assertions.assertSame(saved, created);
-		Assertions.assertEquals("ivanov", saved.getLogin());
-		Assertions.assertEquals("Иванов Иван", saved.getFullName());
-		Assertions.assertEquals("ivanov@test.ru", saved.getEmail());
-		Assertions.assertEquals("bcrypt-hash", saved.getPassword());
+		Assertions.assertEquals(LOGIN, saved.getLogin());
+		Assertions.assertEquals(FULL_NAME, saved.getFullName());
+		Assertions.assertEquals(EMAIL, saved.getEmail());
+		Assertions.assertEquals(ENCODED_PASSWORD, saved.getPassword());
 		Assertions.assertEquals(UserRole.ADMIN, saved.getRole());
-		verify(passwordEncoder).encode("secret");
+		verify(passwordEncoder).encode(PASSWORD);
 	}
 
 	@Test
 	@DisplayName("Негативный сценарий: не создаёт пользователя с уже занятым логином")
 	void rejectsExistingLoginWithoutSavingUser() {
-		when(userRepository.existsByLogin("ivanov")).thenReturn(true);
+		when(userRepository.existsByLogin(LOGIN)).thenReturn(true);
 
 		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> userService.createUser("ivanov", "Иванов Иван", "ivanov@test.ru", "secret", UserRole.USER));
+				() -> userService.createUser(LOGIN, FULL_NAME, EMAIL, PASSWORD, UserRole.USER));
 
-		verify(messageService).get("user.login.exists", "ivanov");
+		verify(messageService).get("user.login.exists", LOGIN);
 		verify(userRepository, never()).existsByEmail(any());
 		verify(userRepository, never()).save(any());
 		verify(passwordEncoder, never()).encode(any());
@@ -78,13 +85,13 @@ class UserServiceImplMockitoTest {
 	@Test
 	@DisplayName("Негативный сценарий: не создаёт пользователя с уже занятым email")
 	void rejectsExistingEmailWithoutSavingUser() {
-		when(userRepository.existsByLogin("ivanov")).thenReturn(false);
-		when(userRepository.existsByEmail("ivanov@test.ru")).thenReturn(true);
+		when(userRepository.existsByLogin(LOGIN)).thenReturn(false);
+		when(userRepository.existsByEmail(EMAIL)).thenReturn(true);
 
 		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> userService.createUser("ivanov", "Иванов Иван", "ivanov@test.ru", "secret", UserRole.USER));
+				() -> userService.createUser(LOGIN, FULL_NAME, EMAIL, PASSWORD, UserRole.USER));
 
-		verify(messageService).get("user.email.exists", "ivanov@test.ru");
+		verify(messageService).get("user.email.exists", EMAIL);
 		verify(userRepository, never()).save(any());
 		verify(passwordEncoder, never()).encode(any());
 	}
@@ -92,12 +99,12 @@ class UserServiceImplMockitoTest {
 	@Test
 	@DisplayName("Негативный сценарий: выбрасывает исключение при поиске несуществующего логина")
 	void throwsExceptionForUnknownLogin() {
-		when(userRepository.findByLogin("unknown")).thenReturn(Optional.empty());
+		when(userRepository.findByLogin(UNKNOWN_LOGIN)).thenReturn(Optional.empty());
 
 		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> userService.findByLogin("unknown"));
+				() -> userService.findByLogin(UNKNOWN_LOGIN));
 
-		verify(messageService).get("user.not-found", "unknown");
+		verify(messageService).get("user.not-found", UNKNOWN_LOGIN);
 	}
 
 }
