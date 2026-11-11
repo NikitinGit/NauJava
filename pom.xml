@@ -81,7 +81,7 @@
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-java</artifactId>
-			<version>4.10.0</version>
+			<!-- Версией всех модулей Selenium управляет Spring Boot, чтобы избежать смешения версий. -->
 			<scope>test</scope>
 		</dependency>
 		<dependency>
