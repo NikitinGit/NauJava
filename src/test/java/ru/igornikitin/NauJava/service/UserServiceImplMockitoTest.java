@@ -30,7 +30,7 @@ class UserServiceImplMockitoTest {
 	private static final String LOGIN = "ivanov";
 	private static final String FULL_NAME = "Иванов Иван";
 	private static final String EMAIL = "ivanov@test.ru";
-	private static final String PASSWORD = "secret";
+	private static final String RAW_PASSWORD = "secret";
 	private static final String ENCODED_PASSWORD = "bcrypt-hash";
 	private static final String UNKNOWN_LOGIN = "unknown";
 
@@ -51,10 +51,10 @@ class UserServiceImplMockitoTest {
 	void createsUserWithEncodedPasswordAndSelectedRole() {
 		when(userRepository.existsByLogin(LOGIN)).thenReturn(false);
 		when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
-		when(passwordEncoder.encode(PASSWORD)).thenReturn(ENCODED_PASSWORD);
+		when(passwordEncoder.encode(RAW_PASSWORD)).thenReturn(ENCODED_PASSWORD);
 		when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-		User created = userService.createUser(LOGIN, FULL_NAME, EMAIL, PASSWORD, UserRole.ADMIN);
+		User created = userService.createUser(LOGIN, FULL_NAME, EMAIL, RAW_PASSWORD, UserRole.ADMIN);
 
 		// Перехватывает пользователя, переданного сервисом в репозиторий.
 		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
@@ -67,7 +67,7 @@ class UserServiceImplMockitoTest {
 		Assertions.assertEquals(EMAIL, saved.getEmail());
 		Assertions.assertEquals(ENCODED_PASSWORD, saved.getPassword());
 		Assertions.assertEquals(UserRole.ADMIN, saved.getRole());
-		verify(passwordEncoder).encode(PASSWORD);
+		verify(passwordEncoder).encode(RAW_PASSWORD);
 	}
 
 	@Test
@@ -76,7 +76,7 @@ class UserServiceImplMockitoTest {
 		when(userRepository.existsByLogin(LOGIN)).thenReturn(true);
 
 		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> userService.createUser(LOGIN, FULL_NAME, EMAIL, PASSWORD, UserRole.USER));
+				() -> userService.createUser(LOGIN, FULL_NAME, EMAIL, RAW_PASSWORD, UserRole.USER));
 
 		verify(messageService).get("user.login.exists", LOGIN);
 		verify(userRepository, never()).existsByEmail(any());
@@ -91,7 +91,7 @@ class UserServiceImplMockitoTest {
 		when(userRepository.existsByEmail(EMAIL)).thenReturn(true);
 
 		Assertions.assertThrows(IllegalArgumentException.class,
-				() -> userService.createUser(LOGIN, FULL_NAME, EMAIL, PASSWORD, UserRole.USER));
+				() -> userService.createUser(LOGIN, FULL_NAME, EMAIL, RAW_PASSWORD, UserRole.USER));
 
 		verify(messageService).get("user.email.exists", EMAIL);
 		verify(userRepository, never()).save(any());
